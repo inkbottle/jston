@@ -18,7 +18,7 @@
 
 ## 框架结构
 
-- **inc/struct_translator.h**: 框架的核心头文件，包含所有必要的类、函数和宏定义
+- **inc/jston.h**: 框架的核心头文件，包含所有必要的类、函数和宏定义
 - **test/test_basic.cpp**: 基本功能测试程序
 - **test/test_advanced.cpp**: 高级功能测试程序
 
@@ -134,7 +134,6 @@ std::cout << company_json.dump(4) << std::endl;
 2. 在项目目录中创建 build 目录并进入：
 
 ```bash
-cd somepath/struct_translator_enhanced
 mkdir -p build && cd build
 ```
 

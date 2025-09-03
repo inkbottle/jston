@@ -134,7 +134,6 @@ std::cout << company_json.dump(4) << std::endl;
 2. Create a build directory in the project directory and enter it:
 
 ```bash
-cd somepath/struct_translator_enhanced
 mkdir -p build && cd build
 ```
 

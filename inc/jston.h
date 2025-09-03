@@ -12,11 +12,11 @@
 #include <vector>
 
 /**
- * jston - A simple and easy-to-use C++ struct to JSON conversion framework
- * Features:
- * 1. No additional configuration code required after creating structs
- * 2. Automatically handles complex types like nested structs and arrays
- * 3. Provides clean API interface
+ * jston - a simple and easy-to-use C++ struct to JSON conversion framework
+ * features:
+ * 1. no additional configuration code required after creating structs
+ * 2. automatically handles complex types like nested structs and arrays
+ * 3. provides clean API interface
  */
 
 namespace jston {
@@ -39,16 +39,17 @@ enum class TYPE_CODE {
     STRING = 0x13,    // char array
     FUNCTION = 0x14,  // function pointer
     STRUCT = 0x15,    // nested struct
-    ARRAY = 0x16      // array
+    ARRAY = 0x16,     // array
+    POINTER = 0x17    // pointer type
 };
 
-// Field metadata struct
+// field metadata struct
 struct field_metadata {
-    const char* name;              // Field name
-    TYPE_CODE type_code;           // Type code
-    size_t offset;                 // Field offset
-    size_t size;                   // Field size
-    const char* struct_type_name;  // Struct type name (if nested struct)
+    const char* name;              // field name
+    TYPE_CODE type_code;           // type code
+    size_t offset;                 // field offset
+    size_t size;                   // field size
+    const char* struct_type_name;  // struct type name (if nested struct)
     TYPE_CODE
     sub_type_code;        // When type_code is array, use this for basic element types; for custom structs, use
                           // struct_type_name
@@ -56,19 +57,19 @@ struct field_metadata {
     size_t array_length;  // Array length, valid when type_code is ARRAY
 };
 
-// Struct metadata manager class
+// struct metadata manager class
 class MetadataManager {
 private:
-    // Store metadata for all structs
+    // store metadata for all structs
     inline static std::unordered_map<std::string, std::vector<field_metadata>> metadata_map;
 
 public:
-    // Register struct metadata
+    // register struct metadata
     static void register_metadata(const std::string& type_id, const std::vector<field_metadata>& fields) {
         metadata_map[type_id] = fields;
     }
 
-    // Get struct metadata
+    // get struct metadata
     static const std::vector<field_metadata>* get_metadata(const std::string& type_id) {
         auto it = metadata_map.find(type_id);
         if (it != metadata_map.end()) {
@@ -78,7 +79,7 @@ public:
     }
 };
 
-// Type traits utility - used to determine type characteristics
+// type traits utility - used to determine type characteristics
 template <typename T>
 struct type_traits {
     static constexpr bool is_array = false;
@@ -87,7 +88,7 @@ struct type_traits {
     static constexpr bool is_char_array = false;
 };
 
-// Array type specialization template
+// array type specialization template
 template <typename T, size_t N>
 struct type_traits<T[N]> {
     static constexpr bool is_array = true;
@@ -98,7 +99,7 @@ struct type_traits<T[N]> {
     static constexpr size_t size = N;
 };
 
-// Function pointer type specialization template
+// function pointer type specialization template
 template <typename Ret, typename... Args>
 struct type_traits<Ret (*)(Args...)> {
     static constexpr bool is_array = false;
@@ -106,6 +107,17 @@ struct type_traits<Ret (*)(Args...)> {
     static constexpr bool is_string = false;
     static constexpr bool is_char_array = false;
     static constexpr TYPE_CODE type_code = TYPE_CODE::FUNCTION;
+};
+
+// pointer type specialization template
+template <typename T>
+struct type_traits<T*> {
+    static constexpr bool is_array = false;
+    static constexpr bool is_function = false;
+    static constexpr bool is_string = false;
+    static constexpr bool is_char_array = false;
+    static constexpr TYPE_CODE type_code = TYPE_CODE::POINTER;
+    using POINTER_TYPE = T;
 };
 
 // get type code general template function
@@ -154,6 +166,9 @@ TYPE_CODE get_type_code() {
     if (type_traits<T>::is_function) {
         return TYPE_CODE::FUNCTION;
     }
+    if (std::is_pointer<T>::value) {
+        return TYPE_CODE::POINTER;
+    }
     if (type_traits<T>::is_array && !type_traits<T>::is_char_array) {
         return TYPE_CODE::ARRAY;
     }
@@ -165,19 +180,19 @@ TYPE_CODE get_type_code() {
 template <typename T>
 void register_struct_metadata();
 
-// Forward declaration of three-parameter from_json function
+// forward declaration of three-parameter from_json function
 void from_json(const std::vector<field_metadata>& metadata, const nlohmann::json& j, void* obj);
 
-// Forward declaration of three-parameter to_json function
+// forward declaration of three-parameter to_json function
 nlohmann::json to_json(const std::vector<field_metadata>& metadata, const void* obj);
 
-// Helper template function for registering metadata
+// helper template function for registering metadata
 template <typename T>
 void register_metadata_helper(const std::vector<field_metadata>& fields) {
     MetadataManager::register_metadata(typeid(T).name(), fields);
 }
 
-// Automatic registration mechanism - automatically call the registration function at program startup
+// automatic registration mechanism - automatically call the registration function at program startup
 template <typename T>
 class AutoRegistrar {
 public:
@@ -186,14 +201,13 @@ public:
     }
 };
 
-// Trigger automatic registration template variable
+// trigger automatic registration template variable
 template <typename T>
 AutoRegistrar<T> g_auto_registrar;
 
-// Struct to JSON conversion function
+// struct to JSON conversion function
 template <typename T>
 nlohmann::json to_json(const T& obj) {
-    nlohmann::json result;
     const std::string type_id = typeid(T).name();
     const auto* metadata = MetadataManager::get_metadata(type_id);
 
@@ -206,12 +220,12 @@ nlohmann::json to_json(const T& obj) {
 // JSON to struct conversion function
 template <typename T>
 void from_json(const nlohmann::json& j, T& obj) {
-    // Check if JSON is an object type
+    // check if JSON is an object type
     if (!j.is_object()) {
         throw std::runtime_error("JSON value is not an object, cannot convert to struct");
     }
 
-    // Get type ID and metadata
+    // get type ID and metadata
     const std::string type_id = typeid(T).name();
     const auto* metadata = MetadataManager::get_metadata(type_id);
 
@@ -221,14 +235,36 @@ void from_json(const nlohmann::json& j, T& obj) {
     from_json(*metadata, j, &obj);
 }
 
-// Overloaded to_json function, accepts metadata and object pointer as parameters
+// struct to JSON string conversion function
+template <typename T>
+std::string to_json_string(const T& obj) {
+    return to_json(obj).dump();
+}
+
+// JSON string to struct conversion function
+template <typename T>
+void from_json_string(const std::string& j, T& obj) {
+    if (j.empty()) {
+        throw std::runtime_error("empty json string provided");
+    }
+    
+    try {
+        from_json(nlohmann::json::parse(j), obj);
+    } catch (const nlohmann::json::exception& e) {
+        throw std::runtime_error(std::string("json parsing error: ") + e.what());
+    } catch (const std::exception& e) {
+        throw std::runtime_error(std::string("from_json exception: ") + e.what());
+    }
+}
+
+// overloaded to_json function, accepts metadata and object pointer as parameters
 inline nlohmann::json to_json(const std::vector<field_metadata>& metadata, const void* obj) {
     nlohmann::json result;
 
     // iterate through all fields and convert
     for (const auto& field : metadata) {
         try {
-            // Handle differently based on field type
+            // handle differently based on field type
             switch (field.type_code) {
                 case TYPE_CODE::CHAR: {
                     const char& value =
@@ -325,12 +361,17 @@ inline nlohmann::json to_json(const std::vector<field_metadata>& metadata, const
                     result[field.name] = "[function_pointer]";
                     break;
                 }
+                case TYPE_CODE::POINTER: {
+                    // get the pointer value is not necessary
+                    result[field.name] = "[pointer]";
+                    break;
+                }
                 case TYPE_CODE::STRUCT: {
                     // handle nested struct
                     const void* struct_ptr =
                         reinterpret_cast<const void*>(reinterpret_cast<const char*>(obj) + field.offset);
 
-                    // Get struct type name and convert
+                    // get struct type name and convert
                     if (field.struct_type_name && *field.struct_type_name) {
                         const auto* struct_metadata = MetadataManager::get_metadata(field.struct_type_name);
                         if (struct_metadata) {
@@ -556,15 +597,15 @@ inline nlohmann::json to_json(const std::vector<field_metadata>& metadata, const
 
 // three-parameter from_json function implementation
 inline void from_json(const std::vector<field_metadata>& metadata, const nlohmann::json& j, void* obj) {
-    // Iterate through all fields and convert
+    // iterate through all fields and convert
     for (const auto& field : metadata) {
         try {
-            // Check if field exists and is not null
+            // check if field exists and is not null
             if (j.find(field.name) == j.end() || j[field.name].is_null()) {
                 continue;
             }
 
-            // Handle differently based on field type
+            // handle differently based on field type
             switch (field.type_code) {
                 case TYPE_CODE::CHAR: {
                     char& value = *reinterpret_cast<char*>(reinterpret_cast<char*>(obj) + field.offset);
@@ -630,7 +671,13 @@ inline void from_json(const std::vector<field_metadata>& metadata, const nlohman
                     break;
                 }
                 case TYPE_CODE::STRING: {
-                    // only support char array (c-style string)
+                    // check if this is a char pointer (char* or const char*)
+                    if (std::is_pointer<decltype(*reinterpret_cast<void**>(reinterpret_cast<char*>(obj) + field.offset))>::value) {
+                        // for char pointers, we don't perform deserialization as we can't know where to allocate memory
+                        // just leave the pointer as it is (null or existing)
+                        break;
+                    }
+                    // regular char array (c-style string) handling
                     char* value = reinterpret_cast<char*>(reinterpret_cast<char*>(obj) + field.offset);
                     try {
                         std::string str_value = j[field.name].get<std::string>();
@@ -648,6 +695,12 @@ inline void from_json(const std::vector<field_metadata>& metadata, const nlohman
                 }
                 case TYPE_CODE::FUNCTION: {
                     // do not deserialize function pointers
+                    break;
+                }
+                case TYPE_CODE::POINTER: {
+                    // explicitly set pointer types to null during deserialization
+                    void** ptr = reinterpret_cast<void**>(reinterpret_cast<char*>(obj) + field.offset);
+                    *ptr = nullptr;
                     break;
                 }
                 case TYPE_CODE::STRUCT: {
@@ -929,7 +982,7 @@ inline void from_json(const std::vector<field_metadata>& metadata, const nlohman
         if (std::is_array<decltype(struct_name::field_name)>::value) {                                                 \
             if (!std::is_same<typename std::remove_extent<decltype(struct_name::field_name)>::type, char>::value) {    \
                 field_metadata.type_code = jston::TYPE_CODE::ARRAY;                                                    \
-                /* Calculate array element size and array length */                                                    \
+                /* calculate array element size and array length */                                                    \
                 field_metadata.element_size =                                                                          \
                     sizeof(typename std::remove_extent<decltype(struct_name::field_name)>::type);                      \
                 field_metadata.array_length = std::extent<decltype(struct_name::field_name)>::value;                   \

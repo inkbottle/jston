@@ -25,9 +25,9 @@ register_json_struct(Person, age, name, car, phone_numbers);
 
 // struct for testing edge cases
 struct EdgeCaseStruct {
-    char very_short_string[2];                  // Very short string array
-    int array_with_uninitialized_elements[10];  // Array with uninitialized elements
-    bool boolean_values[3];                     // Boolean type array
+    char very_short_string[2];                  // very short string array
+    int array_with_uninitialized_elements[10];  // array with uninitialized elements
+    bool boolean_values[3];                     // boolean type array
 };
 register_json_struct(EdgeCaseStruct, very_short_string, array_with_uninitialized_elements, boolean_values);
 
@@ -56,7 +56,7 @@ struct RecursiveStruct {
     int id;
     RecursiveStruct* child;
 };
-// Note: The current framework may not support serialization of function pointers and pointer types
+// note: the current framework may not support serialization of function pointers and pointer types
 // register_json_struct(RecursiveStruct, id, child);
 
 // struct with only one field for testing
@@ -73,7 +73,7 @@ register_json_struct(LargeCharArrayStruct, large_string);
 
 // struct for testing field names conflicting with c++ keywords
 struct KeywordFieldStruct {
-    int int_;  // Trailing underscore to avoid conflict with keyword
+    int int_;  // trailing underscore to avoid conflict with keyword
     int struct_;
     int class_;
     int private_;
@@ -81,7 +81,7 @@ struct KeywordFieldStruct {
 };
 register_json_struct(KeywordFieldStruct, int_, struct_, class_, private_, public_);
 
-// Print separator function
+// print separator function
 void print_separator() {
     std::cout << "\n======================================================================\n" << std::endl;
 }
@@ -90,20 +90,20 @@ void print_separator() {
 void test_edge_cases() {
     std::cout << "=== Testing Edge Cases ===" << std::endl;
 
-    // Test short string array
+    // test short string array
     EdgeCaseStruct edge;
     strcpy(edge.very_short_string, "A");  // Should copy only one character plus null terminator
 
-    // Initialize some array elements
+    // initialize some array elements
     edge.array_with_uninitialized_elements[0] = 1;
     edge.array_with_uninitialized_elements[9] = 10;
 
-    // Initialize boolean array
+    // initialize boolean array
     edge.boolean_values[0] = true;
     edge.boolean_values[1] = false;
     edge.boolean_values[2] = true;
 
-    // Serialization and deserialization
+    // serialization and deserialization
     try {
         nlohmann::json edge_json = jston::to_json(edge);
         std::cout << "EdgeCaseStruct serialization successful!\n" << edge_json.dump(2) << std::endl;
@@ -194,15 +194,15 @@ void test_large_char_array() {
     std::cout << "=== Testing Large Character Array ===" << std::endl;
 
     LargeCharArrayStruct large;
-    memset(large.large_string, 'A', 1023);  // Fill most characters
-    large.large_string[1023] = '\0';        // Ensure string termination
-    large.large_string[100] = 'B';          // Set a different character in the middle as marker
+    memset(large.large_string, 'A', 1023);  // fill most characters
+    large.large_string[1023] = '\0';        // ensure string termination
+    large.large_string[100] = 'B';          // set a different character in the middle as marker
 
     try {
         nlohmann::json large_json = jston::to_json(large);
         std::cout << "LargeCharArrayStruct serialization successful!" << std::endl;
         
-        // Only print partial content to avoid excessive output
+        // only print partial content to avoid excessive output
         std::string json_str = large_json.dump(2);
         if (json_str.length() > 200) {
             std::cout << "JSON (truncated): " << json_str.substr(0, 200) << "..." << std::endl;
@@ -282,7 +282,7 @@ void test_performance() {
         
         std::cout << "Large struct deserialization completed in: " << duration.count() << " ms" << std::endl;
         
-        // Verify some values
+        // verify some values
         std::cout << "Verification: array[0]=" << perf_loaded.array[0] 
                   << ", array[999]=" << perf_loaded.array[999]
                   << std::endl;
@@ -322,35 +322,35 @@ void test_error_handling() {
 int main() {
     std::cout << "=== JSON Translator Advanced Test Program ===" << std::endl;
 
-    // Test edge cases
+    // test edge cases
     test_edge_cases();
     print_separator();
 
-    // Test special characters
+    // test special characters
     test_special_characters();
     print_separator();
 
-    // Test extreme values
+    // test extreme values
     test_extreme_values();
     print_separator();
 
-    // Test single field struct
+    // test single field struct
     test_single_field_struct();
     print_separator();
 
-    // Test large char array
+    // test large char array
     test_large_char_array();
     print_separator();
 
-    // Test keyword field names
+    // test keyword field names
     test_keyword_field_names();
     print_separator();
 
-    // Test serialization performance
+    // test serialization performance
     test_performance();
     print_separator();
 
-    // Test error handling
+    // test error handling
     test_error_handling();
 
     std::cout << "\n=== Advanced Test Program Completed ===" << std::endl;

@@ -136,16 +136,16 @@ register_json_struct(LargeStruct, field1, field2, field3, field4, field5, field6
                      field11, field12, field13, field14, field15, field16, field17, field18, field19, field20, field21,
                      field22, field23, field24, field25, field26, field27, field28, field29, field30);
 
-// Print separator function
+// print separator function
 void print_separator() {
     std::cout << "\n======================================================================\n" << std::endl;
 }
 
-// Test basic struct serialization and deserialization
+// test basic struct serialization and deserialization
 void test_basic_struct_serialization() {
     std::cout << "=== Testing Basic Struct Serialization and Deserialization ===" << std::endl;
 
-    // Initialize struct
+    // initialize struct
     Person person_1;
     person_1.age = 30;
     strcpy(person_1.name, "John Doe");
@@ -156,18 +156,18 @@ void test_basic_struct_serialization() {
     person_1.phone_numbers[0] = 123456789;
     person_1.phone_numbers[1] = 987654321;
 
-    // Test struct to JSON conversion
+    // test struct to JSON conversion
     nlohmann::json json_str = jston::to_json(person_1);
     std::cout << "Person to JSON:\n" << json_str.dump(4) << std::endl;
 
-    // Test JSON to struct conversion
+    // test JSON to struct conversion
     Person person_2;
     jston::from_json(json_str, person_2);
     std::cout << "\nJSON to Person:\nage: " << person_2.age << ", name: " << person_2.name;
     std::cout << ", car brand: " << person_2.car.brand << ", car model: " << person_2.car.model << std::endl;
 }
 
-// Test nested structs and arrays
+// test nested structs and arrays
 void test_nested_struct_and_array() {
     std::cout << "=== Testing Nested Structs and Arrays ===" << std::endl;
 
@@ -182,13 +182,13 @@ void test_nested_struct_and_array() {
     person_1.phone_numbers[0] = 123456789;
     person_1.phone_numbers[1] = 987654321;
 
-    // Test nested structs and arrays
+    // test nested structs and arrays
     Company company;
     strcpy(company.name, "TechCorp");
     company.employee_count = 2;
     company.employees[0] = person_1;
-    
-    // Create another Person object for employee array
+
+    // create another Person object for employee array
     Person person_2;
     nlohmann::json json_person = jston::to_json(person_1);
     jston::from_json(json_person, person_2);
@@ -198,7 +198,7 @@ void test_nested_struct_and_array() {
     std::cout << "Company to JSON:\n" << company_json.dump(4) << std::endl;
 }
 
-// Test struct with function pointer
+// test struct with function pointer
 void test_struct_with_function_pointer() {
     std::cout << "=== Testing Struct with Function Pointer ===" << std::endl;
 
@@ -210,11 +210,11 @@ void test_struct_with_function_pointer() {
     nlohmann::json config_json = jston::to_json(config);
     std::cout << "SystemConfig to JSON:\n" << config_json.dump(4) << std::endl;
 
-    // Test function call
+    // test function call
     config.logger("Testing logger function pointer");
 }
 
-// Test basic type and array serialization
+// test basic type and array serialization
 void test_basic_type_and_array_serialization() {
     std::cout << "=== Testing Basic Type and Array Serialization ===" << std::endl;
 
@@ -230,7 +230,7 @@ void test_basic_type_and_array_serialization() {
     std::cout << "Person3 data:\nage: " << person_3.age << ", name: " << person_3.name << std::endl;
 }
 
-// Test struct with 30 fields
+// test struct with 30 fields
 void test_large_struct() {
     std::cout << "=== Testing Struct with 30 Fields ===" << std::endl;
 
@@ -278,7 +278,7 @@ void test_large_struct() {
               << ", field3=" << large_loaded.field3 << ", field30=" << large_loaded.field30 << std::endl;
 }
 
-// Test basic type arrays and nested struct arrays
+// test basic type arrays and nested struct arrays
 void test_basic_type_arrays_and_nested_struct_arrays() {
     std::cout << "=== Testing Basic Type Arrays and Nested Struct Arrays ===" << std::endl;
 
@@ -286,7 +286,7 @@ void test_basic_type_arrays_and_nested_struct_arrays() {
     complex_person.id = 101;
     strcpy(complex_person.name, "Complex Person");
 
-    // Initialize basic type arrays
+    // initialize basic type arrays
     complex_person.scores[0] = 95.5;
     complex_person.scores[1] = 88.5;
     complex_person.scores[2] = 92.0;
@@ -309,7 +309,7 @@ void test_basic_type_arrays_and_nested_struct_arrays() {
     complex_person.counts[4] = 50;
     complex_person.counts[5] = 60;
 
-    // Initialize nested struct arrays
+    // initialize nested struct arrays
     strcpy(complex_person.addresses[0].street, "123 Main St");
     strcpy(complex_person.addresses[0].city, "New York");
     strcpy(complex_person.addresses[0].state, "NY");
@@ -320,15 +320,15 @@ void test_basic_type_arrays_and_nested_struct_arrays() {
     strcpy(complex_person.addresses[1].state, "MA");
     complex_person.addresses[1].zip_code = 2108;
 
-    // Serialize ComplexPersonType
+    // serialize ComplexPersonType
     nlohmann::json complex_json = jston::to_json(complex_person);
     std::cout << "ComplexPersonType to JSON:\n" << complex_json.dump(4) << std::endl;
 
-    // Deserialize ComplexPersonType
+    // deserialize ComplexPersonType
     ComplexPersonType complex_loaded;
     jston::from_json(complex_json, complex_loaded);
 
-    // Verify basic type arrays
+    // verify basic type arrays
     std::cout << "\nVerifying basic type arrays:" << std::endl;
     std::cout << "scores: [";
     for (int i = 0; i < 5; i++) {
@@ -339,7 +339,7 @@ void test_basic_type_arrays_and_nested_struct_arrays() {
     }
     std::cout << "]" << std::endl;
 
-    // Verify nested struct arrays
+    // verify nested struct arrays
     std::cout << "\nVerifying nested struct arrays:" << std::endl;
     for (int i = 0; i < 2; i++) {
         std::cout << "Address " << i + 1 << ": " << complex_loaded.addresses[i].street << ", "
@@ -348,9 +348,8 @@ void test_basic_type_arrays_and_nested_struct_arrays() {
     }
 }
 
-// Test 5-level nested struct array
-void test_deep_nested_struct_array()
-{
+// test 5-level nested struct array
+void test_deep_nested_struct_array() {
     std::cout << "=== Testing 5-Level Nested Struct Array ===" << std::endl;
 
     Level1 nested_struct;
@@ -383,7 +382,7 @@ void test_deep_nested_struct_array()
         }
     }
 
-    // Serialize 5-level nested struct
+    // serialize 5-level nested struct
     try {
         nlohmann::json nested_json = jston::to_json(nested_struct);
         std::cout << "5-level nested struct serialization successful!" << std::endl;
@@ -396,7 +395,7 @@ void test_deep_nested_struct_array()
         Level1 nested_loaded;
         jston::from_json(nested_json, nested_loaded);
 
-        // Verify deserialization results
+        // verify deserialization results
         std::cout << "\nVerifying deserialization results:" << std::endl;
         std::cout << "Level1: id=" << nested_loaded.id << ", name=" << nested_loaded.name << std::endl;
 
@@ -406,7 +405,7 @@ void test_deep_nested_struct_array()
                   << " -> " << nested_loaded.items[1].items[1].items[1].items[2].name
                   << " (value: " << nested_loaded.items[1].items[1].items[1].items[2].value << ")" << std::endl;
 
-        // Verify serialization and deserialization consistency
+        // verify serialization and deserialization consistency
         nlohmann::json nested_json2 = jston::to_json(nested_loaded);
         if (nested_json == nested_json2) {
             std::cout << "\nSerialization and deserialization consistency verification passed!" << std::endl;
@@ -419,36 +418,130 @@ void test_deep_nested_struct_array()
     }
 }
 
+// define a struct with pointer members
+struct StructWithPointers {
+    int id;
+    const char* name;
+    int* numbers;
+    Car* car_ptr;
+};
+register_json_struct(StructWithPointers, id, name, numbers, car_ptr);
+
+// test struct with pointer members
+template <typename T>
+void print_ptr_value(const T* ptr, const char* field_name) {
+    if (ptr) {
+        std::cout << field_name << " points to valid memory" << std::endl;
+    } else {
+        std::cout << field_name << " is null" << std::endl;
+    }
+}
+
+void test_struct_with_pointers() {
+    std::cout << "\n=== Testing Struct with Pointer Members ===" << std::endl;
+
+    try {
+        // create a struct with pointers
+        StructWithPointers original;
+        original.id = 42;
+        original.name = "TestName";
+
+        // allocate memory for numbers and car_ptr
+        original.numbers = new int[3];
+        original.numbers[0] = 1;
+        original.numbers[1] = 2;
+        original.numbers[2] = 3;
+
+        original.car_ptr = new Car();
+        original.car_ptr->id = 100;
+        original.car_ptr->price = 25000.50;
+        strcpy(original.car_ptr->brand, "Toyota");
+        strcpy(original.car_ptr->model, "Camry");
+
+        std::cout << "Original struct created with pointers" << std::endl;
+        std::cout << "id: " << original.id << std::endl;
+        std::cout << "name: " << original.name << std::endl;
+        std::cout << "numbers[0]: " << original.numbers[0] << ", numbers[1]: " << original.numbers[1]
+                  << ", numbers[2]: " << original.numbers[2] << std::endl;
+        std::cout << "car_ptr: brand=" << original.car_ptr->brand << ", model=" << original.car_ptr->model << std::endl;
+
+        // serialize to JSON
+        nlohmann::json json_obj = jston::to_json(original);
+        std::cout << "\nSerialized JSON: " << std::endl;
+        std::cout << json_obj.dump(2) << std::endl;
+
+        // deserialize back to struct
+        StructWithPointers deserialized;
+        deserialized.numbers = nullptr;
+        deserialized.car_ptr = nullptr;
+
+        std::cout << "\nInitial deserialized struct pointers state: " << std::endl;
+        print_ptr_value(deserialized.numbers, "numbers");
+        print_ptr_value(deserialized.car_ptr, "car_ptr");
+
+        jston::from_json(json_obj, deserialized);
+
+        std::cout << "\nAfter deserialization: " << std::endl;
+        std::cout << "id: " << deserialized.id << std::endl;
+        std::cout << "name: " << (deserialized.name ? deserialized.name : "[nullptr]") << std::endl;  // Safe null check
+        std::cout << "[DEBUG] About to print numbers pointer" << std::endl;
+        print_ptr_value(deserialized.numbers, "numbers");
+        std::cout << "[DEBUG] About to print car_ptr pointer" << std::endl;
+        print_ptr_value(deserialized.car_ptr, "car_ptr");
+
+        // verify the behavior of pointer handling in the framework
+        std::cout << "\nFramework pointer handling verification: " << std::endl;
+        if (deserialized.numbers == nullptr && deserialized.car_ptr == nullptr) {
+            std::cout << "✅ Pointers remain null after deserialization, which is expected behavior" << std::endl;
+        } else {
+            std::cout
+                << "⚠️ WARNING: Pointers were modified during deserialization, which might indicate unexpected behavior"
+                << std::endl;
+        }
+
+        // clean up
+        delete[] original.numbers;
+        delete original.car_ptr;
+
+    } catch (const std::exception& e) {
+        std::cerr << "Serialization/deserialization failed: " << e.what() << std::endl;
+    }
+}
+
 int main() {
     std::cout << "=== JSON Translator Framework Example Program ===" << std::endl;
-    
-    // Test basic struct serialization and deserialization
+
+    // test basic struct serialization and deserialization
     test_basic_struct_serialization();
     print_separator();
-    
-    // Test nested structs and arrays
+
+    // test nested structs and arrays
     test_nested_struct_and_array();
     print_separator();
-    
-    // Test struct with function pointer
+
+    // test struct with function pointer
     test_struct_with_function_pointer();
     print_separator();
-    
-    // Test basic type and array serialization
+
+    // test struct with pointer members
+    test_struct_with_pointers();
+    print_separator();
+
+    // test basic type and array serialization
     test_basic_type_and_array_serialization();
     print_separator();
-    
-    // Test struct with 30 fields
+
+    // test struct with 30 fields
     test_large_struct();
     print_separator();
-    
-    // Test basic type arrays and nested struct arrays
+
+    // test basic type arrays and nested struct arrays
     test_basic_type_arrays_and_nested_struct_arrays();
     print_separator();
-    
-    // Test 5-level nested struct array
+
+    // test 5-level nested struct array
     test_deep_nested_struct_array();
-    
+
     std::cout << "\n=== Example Program Completed ===" << std::endl;
     return 0;
 }
